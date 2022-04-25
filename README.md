@@ -1,6 +1,8 @@
-# better-sqlite3-helper
+# better-sqlite3-multiple-ciphers-helper
+Is a fork of [better-sqlite3-helper](https://github.com/Kauto/better-sqlite3-helper). I modified it to use the same functions but by using the library [better-sqlite3-multiple-ciphers](https://www.npmjs.com/package/better-sqlite3-multiple-ciphers).
 
-A nodejs wrapper library for the work with [better-sqlite3](https://www.npmjs.com/package/better-sqlite3/) ("The fastest and simplest library for SQLite3 in Node.js"). It's intended for simple server-apps for nodejs and offer some new functions and a migration-system.
+
+A nodejs wrapper library for the work with [better-sqlite3-multiple-ciphers](https://www.npmjs.com/package/better-sqlite3-multiple-ciphers). It's intended for simple server-apps for nodejs and offer some new functions and a migration-system.
 
 <a href='https://ko-fi.com/kautode' target='_blank'><img height='35' style='border:0px;height:46px;' src='https://az743702.vo.msecnd.net/cdn/kofi3.png?v=0' border='0' alt='Buy Me a Coffee at ko-fi.com' />
   
@@ -15,7 +17,7 @@ All commands of better-sqlite3 Version 5 (like [function](https://github.com/Jos
 Install it for example with
 
 ```bash
-npm i better-sqlite3-helper
+npm i better-sqlite3-multiple-ciphers-helper
 ```
 
 ## How to use
@@ -23,7 +25,7 @@ npm i better-sqlite3-helper
 In every file you want access to a sqlite3 database simply require the library and use it right away.
 ##### anyServerFile.js
 ```js
-const DB = require('better-sqlite3-helper');
+const DB = require('better-sqlite3-multiple-ciphers-helper');
 
 let row = DB().queryFirstRow('SELECT * FROM users WHERE id=?', userId);
 console.log(row.firstName, row.lastName, row.email);
@@ -53,7 +55,7 @@ The database loads lazy. Only when it's used for the first time, the database is
 If you want to change the default-values, you can do this by calling the library once in the beginning of your server-code and thus setting it up:
 ##### index.js
 ```js
-const DB = require('better-sqlite3-helper');
+const DB = require('better-sqlite3-multiple-ciphers-helper');
 
 // The first call creates the global instance with your settings
 DB({
@@ -61,6 +63,7 @@ DB({
   readonly: false, // read only
   fileMustExist: false, // throw error if database not exists
   WAL: true, // automatically enable 'PRAGMA journal_mode = WAL'
+  encryptionKey: 'my-secret-key', // enable encryption when adding key, to disable `encryptionKey: false`
   migrate: {  // disable completely by setting `migrate: false`
     force: false, // set to 'last' to automatically reapply the last migration-file
     table: 'migration', // name of the database table that is used to keep track
@@ -72,7 +75,7 @@ DB({
 After that you can use the library without parameter:
 ##### anotherAPIFile.js
 ```js
-const DB = require('better-sqlite3-helper');
+const DB = require('better-sqlite3-multiple-ciphers-helper');
 
 // a second call directly returns the global instance
 let row = DB().queryFirstRow('SELECT * FROM users WHERE id=?', userId);
@@ -181,7 +184,7 @@ If you want to put invalid values into the database, the functions will throw an
 ```js
 const { Router } = require('express')
 const bodyParser = require('body-parser')
-const DB = require('better-sqlite3-helper')
+const DB = require('better-sqlite3-multiple-ciphers-helper')
 
 router.patch('/user/:id', bodyParser.json(), function (req, res, next) {
   try {
@@ -246,7 +249,7 @@ The files need to be numbered. They are automatically executed before the first 
 You can also give an array of changes.
 
 ```js
-const DB = require('better-sqlite3-helper')
+const DB = require('better-sqlite3-multiple-ciphers-helper')
 
 const db = new DB({
   migrate: {
@@ -280,7 +283,8 @@ const db = new DB({
 ## More Documentation of better-sqlite3
 
 - [API documentation](https://github.com/JoshuaWise/better-sqlite3/wiki/API)
+- [Multiple-Ciphers](https://github.com/m4heshd/better-sqlite3-multiple-ciphers)
 
 ## License
 
-[MIT](https://github.com/Kauto/better-sqlite3-helper/blob/master/LICENSE)
+[MIT](https://github.com/egagnon77/better-sqlite3-multiple-ciphers-helper/blob/master/LICENSE)

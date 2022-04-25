@@ -13,7 +13,9 @@ describe('Database Basics', function () {
     try {
       fs.unlinkSync(path.resolve(appRoot, './data/sqlite3.db'))
       fs.rmdirSync(path.resolve(appRoot, './data'))
-    } catch (e) {}
+    } catch (e) {
+      console.log(e)
+    }
   })
 
   it('should create a sqlite3.db-file', function () {
@@ -79,6 +81,15 @@ describe('Database Basics', function () {
     expect(db.queryFirstCell('SELECT 1 WHERE 1=0')).to.be.undefined
   })
 
+  it('enecrypted should return first row with queryFirstRow', function () {
+    db = new DB({
+      migrate: false,
+      encryptionKey: 'test'
+    })
+    expect(db.queryFirstRow('SELECT ? as `1` UNION SELECT ? as `1`', 1, 2)).to.deep.equal({ 1: 1 })
+    expect(db.queryFirstRow('SELECT 1 WHERE 1 = 2')).to.equal(undefined)
+  })
+
   it('should migrate files', function () {
     db = new DB({
       migrate: {
@@ -86,6 +97,49 @@ describe('Database Basics', function () {
       }
     })
     expect(db.queryFirstCell('SELECT `value` FROM Setting WHERE `key` = ?', 'test')).to.be.equal('now')
+  })
+
+  
+  it('encrypted should migrate files', function () {
+    db = new DB({
+      migrate: {
+        migrationsPath: './test/migrations'
+      },
+      encryptionKey: 'test'
+    })
+    expect(db.queryFirstCell('SELECT `value` FROM Setting WHERE `key` = ?', 'test')).to.be.equal('now')
+  })
+
+  it('encrypted should db should not be accessible by different encrypted connection', function () {
+    db = new DB({
+      path: path.resolve(appRoot, './data/sqlite3_encrypted.db'),
+      migrate: {
+        migrationsPath: './test/migrations'
+      },
+      encryptionKey: 'test'
+    })
+    expect(db.queryFirstCell('SELECT `value` FROM Setting WHERE `key` = ?', 'test')).to.be.equal('now')
+
+    db.close()
+    db = null
+    instance = null
+        
+    db2 = new DB({
+      path: path.resolve(appRoot, './data/sqlite3_encrypted.db'),
+      migrate: false,
+      encryptionKey: 'test1'
+    })
+
+    expect(() => db2.queryFirstCell('SELECT `value` FROM Setting WHERE `key` = ?', 'test')).to.throw();
+    
+    db2.close()
+    db2 = null
+
+    try {
+      fs.unlinkSync(path.resolve(appRoot, './data/sqlite3_encrypted.db'))
+    } catch (e) {
+      console.log(e)
+    }
   })
 
   it('should migrate array', function () {

@@ -1,4 +1,4 @@
-const Database = require('better-sqlite3')
+const Database = require('better-sqlite3-multiple-ciphers')
 const path = require('path')
 const fs = require('fs')
 const mkdirp = require('mkdirp')
@@ -37,7 +37,8 @@ function DB (options = {}) {
       migrate: true,
       readonly: false,
       fileMustExist: false,
-      WAL: true
+      WAL: true,
+      encryptionKey: false
     },
     options
   )
@@ -94,6 +95,9 @@ DB.prototype.connection = function () {
   } catch (e) {
     this.db = undefined
     throw e
+  }
+  if (this.options.encryptionKey) {
+    this.db.pragma(`key='${this.options.encryptionKey}'`)
   }
   if (this.options.WAL) {
     this.db.pragma('journal_mode = WAL')
